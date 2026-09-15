@@ -55,35 +55,11 @@
 		<h3>Extra Credit: Incremental Edge Evaluation</h3>
 		<p>My original implementation recomputed three complete cross products at every pixel. I optimized it by rewriting each edge test as \(E(x,y)=Ax+By+C\) and computing its coefficients once. Because adjacent pixel centers are one unit apart, moving right updates an edge value by adding \(A\), while moving down one row updates it by adding \(B\). This replaces repeated multiplication with simpler additions while preserving the same triangle coverage and winding test.</p>
 		<p>I timed repeated renders of <code>basic/test4.svg</code> by placing a timer around <code>svg.draw()</code> and comparing median times. The optimization reduced the median from 0.810 ms to 0.609 ms, a 24.8% reduction.</p>
-
-		<!-- <p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
-		<div style="display: flex; flex-direction: column; align-items: center;">
-			<table style="width: 100%; text-align: center; border-collapse: collapse;">
-			  <tr>
-				<td style="text-align: center;">
-				  <img src="assets/lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-				<td style="text-align: center;">
-				  <img src="assets/lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-			  </tr>
-			  <tr>
-				<td style="text-align: center;">
-				  <img src="assets/lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-				<td style="text-align: center;">
-				  <img src="assets/lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-			  </tr>
-			</table>
-		</div> -->
 		
 		<h2>Task 2: Antialiasing by Supersampling</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>I implemented supersampling by dividing each pixel into a <code>sqrt(sample_rate) × sqrt(sample_rate)</code> grid and testing each subsample against the triangle edges. I used <code>sample_buffer</code>, a vector of <code>Color</code> objects sized <code>width * height * sample_rate</code>, to store the results and updated its size whenever the framebuffer or sample rate changed. Covered triangle subsamples are colored individually, while <code>fill_pixel()</code> colors all subsamples for points and lines. Finally, <code>resolve_to_framebuffer()</code> averages each pixel's subsamples into one framebuffer color. This partial-coverage information smooths diagonal edges and preserves thin features that a single center sample might miss.</p>
+		<table style="width: 100%; text-align: center;"> <tr> <td> <img src="assets/task2-rate1.png" alt="Test4 at sample rate 1" style="width: 100%;"/> <figcaption>Rate 1: 1&times;1</figcaption> </td> <td> <img src="assets/task2-rate4.png" alt="Test4 at sample rate 4" style="width: 100%;"/> <figcaption>Rate 4: 2&times;2</figcaption> </td> <td> <img src="assets/task2-rate16.png" alt="Test4 at sample rate 16" style="width: 100%;"/> <figcaption>Rate 16: 4&times;4</figcaption> </td> </tr> </table>
+		<p>At rate 1, pixels are either fully colored or white, producing jagged edges and gaps in skinny triangles. Rates 4 and 16 test more locations within each pixel, so partially covered pixels receive averaged colors. As the sample rate increases, the edge becomes smoother and the thin triangle appears more continuous.</p>
 
 		<h2>Task 3: Transforms</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
