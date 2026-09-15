@@ -28,7 +28,7 @@
 	<body>
 		<div class="container">
 		<h1>CS184/284A Fall 2026 Homework 1 Write-Up</h1>
-		<div style="text-align: center;">Names: </div>
+		<div style="text-align: center;">Names: Kate Chier</div>
 
 		<br>
 
@@ -38,11 +38,6 @@
 
 		Link to GitHub repository: (TODO) <a href="https://cs184.eecs.berkeley.edu/fa26">cs184.eecs.berkeley.edu/fa26</a>
 
-		<figure>
-			<img src="assets/lion.jpg" alt="Lion" style="width:50%"/>
-			<figcaption>You can add images with captions!</figcaption>
-		</figure>
-
 		<!--
 		We've already added one heading per task, to make your write-up as navigable when grading. Please fit your write-up within these sections!
 		-->
@@ -51,9 +46,17 @@
 		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
 
 		<h2>Task 1: Drawing Single-Color Triangles</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>To rasterize a triangle, I first compute its bounding box using the minimum and maximum x- and y-coordintes of its three vertices. I then use a nested for loops to go through every pixel in this bounding box, sampling each pixel at its center. For each sample, I compute the cross product between every directed edge vector and the vector from that edge's starting vertex to the sample point. If all three cross products are nonnegative or all three are nonpositive, I fill the pixel. </p>
+		<p>The algorithm examines only the pixels inside the triangle's smallest bounding box so if the bounding box has width (w) and height (h), the nested loops visit at most \(wh)\ samples. Each sample is visited once and requires a constant number of edge tests, giving the algorithm a running time of O(wh).</p>
+		<figure>
+			<img src="assets/task1-test4.png" alt="Rendering of test4.svg with pixel inspector centered on a triangle edge" style="width:50%"/>
+			<figcaption>Rendering of <code>basic/test4.svg</code> with the default viewing parameters.</figcaption>
+		</figure>
+		<h3>Extra Credit: Incremental Edge Evaluation</h3>
+		<p>My original implementation recomputed three complete cross products at every pixel. I optimized it by rewriting each edge test as \(E(x,y)=Ax+By+C\) and computing its coefficients once. Because adjacent pixel centers are one unit apart, moving right updates an edge value by adding \(A\), while moving down one row updates it by adding \(B\). This replaces repeated multiplication with simpler additions while preserving the same triangle coverage and winding test.</p>
+		<p>I timed repeated renders of <code>basic/test4.svg</code> by placing a timer around <code>svg.draw()</code> and comparing median times. The optimization reduced the median from 0.810 ms to 0.609 ms, a 24.8% reduction.</p>
 
-		<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
+		<!-- <p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
 			  <tr>
@@ -77,7 +80,7 @@
 				</td>
 			  </tr>
 			</table>
-		</div>
+		</div> -->
 		
 		<h2>Task 2: Antialiasing by Supersampling</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
