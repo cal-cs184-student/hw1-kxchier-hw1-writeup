@@ -32,18 +32,18 @@
 
 		<br>
 
-		Link to webpage: (TODO) <a href="https://cs184.eecs.berkeley.edu/fa26">cs184.eecs.berkeley.edu/fa26</a>
+		Link to webpage: <a href="https://cal-cs184-student.github.io/hw1-kxchier-hw1-writeup/">https://cal-cs184-student.github.io/hw1-kxchier-hw1-writeup/</a>
 		
 		<br>
 
-		Link to GitHub repository: (TODO) <a href="https://cs184.eecs.berkeley.edu/fa26">cs184.eecs.berkeley.edu/fa26</a>
+		Link to GitHub repository: <a href="https://github.com/cal-cs184-student/hw1-kxchier-hw1-writeup">https://github.com/cal-cs184-student/hw1-kxchier-hw1-writeup</a>
 
 		<!--
 		We've already added one heading per task, to make your write-up as navigable when grading. Please fit your write-up within these sections!
 		-->
 
 		<h2>Overview</h2>
-		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
+		<p>In this homework, I built a software rasterization pipeline that transforms SVG geometry into screen space, rasterizes triangles, antialiases them through supersampling, interpolates vertex attributes with barycentric coordinates, and maps textures using nearest, bilinear, and mipmap level sampling. I found it interesting that the same triangle traversal and barycentric  weights could support solid colors, gradients, and textures. I also learned that supersampling, pixel filtering, and mipmapping address different sources of aliasing. One challenge was preventing small seams between neighboring interpolated triangles due to floating-point error, which I addressed by including a small tolerance in the edge tests.</p>
 
 		<h2>Task 1: Drawing Single-Color Triangles</h2>
 		<p>To rasterize a triangle, I first compute its bounding box using the minimum and maximum x- and y-coordinates of its three vertices. I then use nested for loops to go through every pixel in this bounding box, sampling each pixel at its center. For each sample, I compute the cross product between every directed edge vector and the vector from that edge's starting vertex to the sample point. If all three cross products are nonnegative or all three are nonpositive, I fill the pixel. </p>
@@ -55,6 +55,7 @@
 		<h3>Extra Credit: Incremental Edge Evaluation</h3>
 		<p>My original implementation recomputed three complete cross products at every pixel. I optimized it by rewriting each edge test as \(E(x,y)=Ax+By+C\) and computing its coefficients once. Because adjacent pixel centers are one unit apart, moving right updates an edge value by adding \(A\), while moving down one row updates it by adding \(B\). This replaces repeated multiplication with simpler additions while preserving the same triangle coverage and winding test.</p>
 		<p>I timed repeated renders of <code>basic/test4.svg</code> by placing a timer around <code>svg.draw()</code> and comparing median times. The optimization reduced the median from 0.810 ms to 0.609 ms, a 24.8% reduction.</p>
+		<table style="width:70%; margin:1em auto; text-align:center;"><tr><th style="padding:8px 18px;">Method</th><th style="padding:8px 18px;">Median render time</th><th style="padding:8px 18px;">Reduction</th></tr><tr><td style="padding:8px 18px;">Original edge evaluation</td><td style="padding:8px 18px;">0.810 ms</td><td style="padding:8px 18px;">—</td></tr><tr><td style="padding:8px 18px;">Incremental edge evaluation</td><td style="padding:8px 18px;">0.609 ms</td><td style="padding:8px 18px;">24.8%</td></tr></table>
 		
 		<h2>Task 2: Antialiasing by Supersampling</h2>
 		<p>I implemented supersampling by dividing each pixel into a <code>sqrt(sample_rate) × sqrt(sample_rate)</code> grid and testing each subsample against the triangle edges. I used <code>sample_buffer</code>, a vector of <code>Color</code> objects sized <code>width * height * sample_rate</code>, to store the results and updated its size whenever the framebuffer or sample rate changed. Covered triangle subsamples are colored individually, while <code>fill_pixel()</code> colors all subsamples for points and lines. Finally, <code>resolve_to_framebuffer()</code> averages each pixel's subsamples into one framebuffer color. This partial-coverage information smooths diagonal edges and preserves thin features that a single center sample might miss.</p>
@@ -62,7 +63,7 @@
 		<p>At rate 1, pixels are either fully colored or white, producing jagged edges and gaps in skinny triangles. Rates 4 and 16 test more locations within each pixel, so partially covered pixels receive averaged colors. As the sample rate increases, the edge becomes smoother and the thin triangle appears more continuous.</p>
 
 		<h2>Task 3: Transforms</h2>
-		<p>I modified Cubeman into a waving position by rotating his upper right arom around the shoulder and his forearm around the elbow. I used nested transformations so that each arm segment rotates around its corresponding joint. The modified SVG is available <a href="assets/my_robot.svg">here</a>.</p>
+		<p>I modified Cubeman into a waving position by rotating his upper right arm around the shoulder and his forearm around the elbow. I used nested transformations so that each arm segment rotates around its corresponding joint. The modified SVG is available <a href="assets/my_robot.svg">here</a>.</p>
 		<figure> <img src="assets/task3.png" alt="Modified red Cubeman waving" style="width:50%"/> <figcaption>Cubeman waving with his raised right arm.</figcaption> </figure>
 		<h3> Extra Credit: Viewport Rotation</h3>
 		<p>I added keyboard controls that rotate the viewport clockwise and counterclockwise. I constructed the rotation in NDC space by translating the viewport center to the origin, rotating it, and translating it back. I inserted this matrix between <code>svg_to_ndc</code> and <code>ndc_to_screen</code>, forming <code>ndc_to_screen * viewport_rotation * svg_to_ndc</code>. This rotates the complete SVG around the center of the viewport before mapping it to screen coordinates.</p>
@@ -74,7 +75,7 @@
 		<figure> <img src="assets/task4-test7.png" alt="Color wheel rendered using barycentric color interpolation" style="width:50%"/> <figcaption>Rendering of <code>basic/test7.svg</code> with default viewing parameters and sample rate 1. Barycentric interpolation blends the colors within each triangle to form a continuous color wheel.</figcaption> </figure>
 
 		<h2>Task 5: "Pixel sampling" for texture mapping</h2>
-		<p>Pixel sampling determines the texture color assgined inside a triangle. I first used barycentric coordinates to interpolate the vertices' <code>(u,v)</code> texture coordinates, then passed the resulting position and selected samplilng method to <code>Texture::sample()</code>. Nearest sampling returns the single closest txel, while bilinear sampling blends the four surrounding texels according to their distances from the texture position.</p>
+		<p>Pixel sampling determines the texture color assigned inside a triangle. I first used barycentric coordinates to interpolate the vertices' <code>(u,v)</code> texture coordinates, then passed the resulting position and selected sampling method to <code>Texture::sample()</code>. Nearest sampling returns the single closest e, while bilinear sampling blends the four surrounding texels according to their distances from the texture position.</p>
 		<table style="width:100%; text-align:center;"> <tr> <td> <img src="assets/task5-nearest-1.png" alt="Nearest sampling at sample rate 1" style="width:100%;"/> <figcaption>Nearest, rate 1</figcaption> </td> <td> <img src="assets/task5-nearest-16.png" alt="Nearest sampling at sample rate 16" style="width:100%;"/> <figcaption>Nearest, rate 16</figcaption> </td> </tr> <tr> <td> <img src="assets/task5-bilinear-1.png" alt="Bilinear sampling at sample rate 1" style="width:100%;"/> <figcaption>Bilinear, rate 1</figcaption> </td> <td> <img src="assets/task5-bilinear-16.png" alt="Bilinear sampling at sample rate 16" style="width:100%;"/> <figcaption>Bilinear, rate 16</figcaption> </td> </tr> </table>
 		<p>In the pixel inspector, nearest sampling produces abrupt, blocky transitions, while bilinear sampling introduces intermediate colors that make edges appear smoother. Increasing the sample rate further reduces jagged triangle boundaries by averaging more samples per output pixel. The difference between nearest and bilinear is greatest around high-contrast details and when texture coordinates fall between texel centers, especially when a texture is enlarged.</p>
 
